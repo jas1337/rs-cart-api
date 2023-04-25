@@ -18,6 +18,21 @@ export enum OrderStatus {
   CANCELLED = 'CANCELLED',
 }
 
+export enum PaymentMethod {
+  ONLINE = 'ONLINE',
+  CARD = 'CARD',
+  CASH = 'CASH',
+}
+
+export enum DeliveryCompany {
+  DPD = 'DPD',
+  DHL = 'DHL',
+  UPS = 'UPS',
+  POCZTA_POLSKA = 'POCZTA_POLSKA',
+}
+
+export type address = { firstName: string; lastName: string; address: string };
+
 @Entity({ name: 'orders' })
 export class Order {
   @PrimaryGeneratedColumn('uuid')
@@ -37,15 +52,14 @@ export class Order {
 
   @Column({ type: 'jsonb', nullable: false })
   payment: {
-    type: string;
-    address?: any;
-    creditCard?: any;
+    method: PaymentMethod;
+    address: address;
   };
 
   @Column({ type: 'jsonb', nullable: false })
   delivery: {
-    type: string;
-    address: any;
+    company: DeliveryCompany;
+    address: address;
   };
 
   @Column({ type: 'text', nullable: true })

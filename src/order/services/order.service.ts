@@ -1,39 +1,77 @@
 import { Injectable } from '@nestjs/common';
-import { v4 } from 'uuid';
-
-import { Order } from '../models';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import {
+  DeliveryCompany,
+  Order,
+  OrderStatus,
+  PaymentMethod,
+} from '../../database/entities/order.entity';
+import { EntityManager, Repository } from 'typeorm';
+import { Cart, CartStatus } from '../../database/entities/cart.entity';
 
 @Injectable()
 export class OrderService {
-  private orders: Record<string, Order> = {};
+  constructor(
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
+    @InjectRepository(Cart)
+    private readonly cartRepository: Repository<Cart>,
+    @InjectEntityManager()
+    private readonly entityManager: EntityManager,
+  ) {}
 
-  findById(orderId: string): Order {
-    return this.orders[orderId];
+  async findById(orderId: string): Promise<Order> {
+    return await this.orderRepository.findOne(orderId);
   }
 
-  create(data: any) {
-    const id = v4(v4());
-    const order = {
-      ...data,
-      id,
-      status: 'inProgress',
-    };
+  async findAllByUserId(userId: string): Promise<Order[]> {
+    return await this.orderRepository.find({
+      where: { user: { id: userId } },
+    });
+  }
 
-    this.orders[id] = order;
+  async create({ userId, cartId, address, comments, total }): Promise<Order> {
+    const order = this.orderRepository.create({
+      user: {
+        id: userId,
+      },
+      cart: {
+        id: cartId,
+      },
+      payment: {
+        method: PaymentMethod.ONLINE,
+        address,
+      },
+      delivery: {
+        company: DeliveryCompany.DPD,
+        address,
+      },
+      comments,
+      status: OrderStatus.OPEN,
+      total,
+    });
+
+    const cart = await this.cartRepository.findOne({
+      where: { user: { id: userId }, status: CartStatus.OPEN },
+    });
+    cart.status = CartStatus.ORDERED;
+
+    await this.entityManager.transaction(async transactionalEntityManager => {
+      await transactionalEntityManager.save(cart);
+      await transactionalEntityManager.save(order);
+    });
 
     return order;
   }
 
-  update(orderId, data) {
-    const order = this.findById(orderId);
+  async update(orderId, data): Promise<Order> {
+    const order = await this.findById(orderId);
 
     if (!order) {
       throw new Error('Order does not exist.');
     }
 
-    this.orders[orderId] = {
-      ...data,
-      id: orderId,
-    };
+    this.orderRepository.merge(order, data);
+    return await this.orderRepository.save(order);
   }
 }

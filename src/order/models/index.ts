@@ -1,20 +1,29 @@
 import { CartItem } from '../../cart/models';
+import {
+  PaymentMethod,
+  address,
+  DeliveryCompany,
+  OrderStatus,
+} from '../../database/entities/order.entity';
 
 export type Order = {
   id?: string;
-  userId: string;
-  cartId: string;
-  items: CartItem[];
+  user: {
+    id: string;
+  };
+  cart: {
+    id: string;
+    items: CartItem[];
+  };
   payment: {
-    type: string;
-    address?: any;
-    creditCard?: any;
+    method: PaymentMethod;
+    address: address;
   };
   delivery: {
-    type: string;
-    address: any;
+    company: DeliveryCompany;
+    address: address;
   };
   comments: string;
-  status: string;
+  status: OrderStatus;
   total: number;
 };

@@ -6,12 +6,7 @@ import {
   UseGuards,
   HttpStatus,
 } from '@nestjs/common';
-import {
-  LocalAuthGuard,
-  AuthService,
-  JwtAuthGuard,
-  BasicAuthGuard,
-} from './auth';
+import { LocalAuthGuard, AuthService, BasicAuthGuard } from './auth';
 
 @Controller()
 export class AppController {

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/services/users.service';
 import { User } from '../users/models';
-import { contentSecurityPolicy } from 'helmet';
 
 @Injectable()
 export class AuthService {
@@ -45,7 +44,7 @@ export class AuthService {
     console.log(user);
 
     function encodeUserToken(user) {
-      const { id, name, password } = user;
+      const { name, password } = user;
       const buf = Buffer.from([name, password].join(':'), 'utf8');
 
       return buf.toString('base64');
@@ -54,10 +53,6 @@ export class AuthService {
     return {
       token_type: 'Basic',
       access_token: encodeUserToken(user),
-      user_data: {
-        id: user.id,
-        name: user.name,
-      },
     };
   }
 }
