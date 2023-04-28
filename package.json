@@ -14,7 +14,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "sls:deploy": "sls deploy --stage prod",
-    "sls:offline": "nest build && sls offline start --httpPort 4002 --lambdaPort 3002 --stage dev",
+    "sls:offline": "sls offline start --httpPort 4002 --lambdaPort 3002 --stage dev",
     "sls:remove": "sls remove",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "fix:all": "npm run format && npm run lint",

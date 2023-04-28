@@ -28,7 +28,7 @@ export class CartController {
   @UseGuards(BasicAuthGuard)
   @Get('orders')
   async findUserOrders(@Req() req: AppRequest) {
-    return await this.orderService
+    const orders = await this.orderService
       .findAllByUserId(getUserIdFromRequest(req))
       .then(orders =>
         orders.map(order => ({
@@ -42,6 +42,12 @@ export class CartController {
           total: order.total,
         })),
       );
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'OK',
+      data: { orders },
+    };
   }
 
   // @UseGuards(JwtAuthGuard)
